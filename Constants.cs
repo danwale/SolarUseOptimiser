@@ -10,6 +10,7 @@ namespace SolarUseOptimiser
         public const string ROUTING_SECTION = "Routing";
 
         public const string ROUTE_DATASOURCE_HUAWEI = "Huawei";
+        public const string ROUTE_DATASOURCE_GROWWATT = "GrowWatt";
         public const string ROUTE_TARGET_CHARGEHQ = "ChargeHQ";
         
         // need to login every 30 minutes

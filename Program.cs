@@ -25,12 +25,6 @@ namespace SolarUseOptimiser
             var cts = new CancellationTokenSource();
 
             // Initialse the poller passing it the Cancellation Token Source
-            // var huaweiSolarPoller = ServiceProvider.GetRequiredService<HuaweiSolarPoller>()
-            //     .InitialiseAsync(cts).GetAwaiter().GetResult();
-
-            // // Start the poller
-            // huaweiSolarPoller.Start();
-
             var poller = ServiceProvider.GetRequiredService<PeriodicPoller>()
                                         .InitialiseAsync(cts).GetAwaiter().GetResult();
 
@@ -42,10 +36,9 @@ namespace SolarUseOptimiser
             WhenCancelled(cts.Token).Wait();
 
             // Stop the poller as the service is stopping
-            //huaweiSolarPoller.Stop();
             poller.Stop();
 
-            Log.Logger.Information("Huawei Solar Poller has exited.");
+            Log.Logger.Information("Solar Use Optimiser has exited.");
         }
 
         /// <summary>
@@ -66,7 +59,7 @@ namespace SolarUseOptimiser
             string configPath = Environment.GetEnvironmentVariable("ConfigPath");
             if (string.IsNullOrWhiteSpace(configPath))
             {
-                configPath = "/etc/huaweisolar";
+                configPath = "/etc/solaruseoptimiser";
             }
             Console.WriteLine("Reading appsettings.json from: {0}", configPath);
 
@@ -90,6 +83,10 @@ namespace SolarUseOptimiser
             if (routing.DataSource.Equals(Constants.ROUTE_DATASOURCE_HUAWEI, StringComparison.CurrentCultureIgnoreCase))
             {
                 serviceCollection.AddSingleton<IDataSource, HuaweiProducer>(); // Pull from Huawei FusionSolar
+            }
+            else if (routing.DataSource.Equals(Constants.ROUTE_DATASOURCE_GROWWATT, StringComparison.CurrentCultureIgnoreCase))
+            {
+                serviceCollection.AddSingleton<IDataSource, GrowWattProducer>(); // Pull from the GrowWatt API
             }
             serviceCollection.AddSingleton<PeriodicPoller>();
 

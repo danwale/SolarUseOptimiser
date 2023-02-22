@@ -115,6 +115,10 @@ The next step in the setup is to grant access to certain (or all) plants and wha
 
 The installer would then provide the user with the **Username** and **Password** they created for the Northbound API Account and provide you with what your station/plant name is (though you can get this yourself from the FusionSolar Moblie App, if you click **Devices** in the app then select your inverter and then click **Basic Info** you'll get a screen that shows the **Plant name**)
 
+### GrowWatt
+
+This is a new implementation of an IDataSource that pulls data from the GrowWatt solar data that is collected.
+
 ## Data Targets
 
 Currently this is only pointing to ChargeHQ but it's designed so that other targets can be implemented.

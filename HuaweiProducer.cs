@@ -33,12 +33,7 @@ namespace SolarUseOptimiser
         {
             get; set;
         }
-
-        private ChargeHQSettings ChargeHQSettings
-        {
-            get; set;
-        }
-
+        
         private string StationCode
         {
             get; set;
