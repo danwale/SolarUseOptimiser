@@ -6,7 +6,7 @@
 
 The intention of this service is to build upon the Huawei FusionSolar to ChargeHQ integration that I'd previously created and provide a framework for plugging in different data sources and different data targets. This will allow this service to be used for building out integrations of many different solar systems to many different types of consumption optimisation services. It will poll a solar system for how much solar power is being generated (and if possible determine the excess) and then push this onto the configured target (which could be ChargeHQ) to allow that target to regulate the power consumed by the target such as an EV charging or anything else that might be able to use variable power consumption rates. This allows for optimisation of the use of solar energy rather than grid supplied energy.
 
-This service is 100% interchangable with the [danwale/huaweifusionsolar2chargehq](https://hub.docker.com/repository/docker/danwale/huaweifusionsolar2chargehq/general) that provides the functionality hard coded between Huawei FusionSolar and ChargeHQ, this project decouples a few things to make it so it can easily extended to support other solar systems and potentially other targets (a custom Tesla charge rate control service for instance or any other brand...your imagination is your limiting factor).
+This service is 100% interchangable with the [danwale/huaweifusionsolar2chargehq](https://hub.docker.com/repository/docker/danwale/huaweifusionsolar2chargehq/general) that provides the functionality hard coded between Huawei FusionSolar and ChargeHQ, this project decouples a few things to make it so it can easily extended to support other solar systems and potentially other targets (_a custom Tesla charge rate control service for instance or any other brand...your imagination is your limiting factor_).
 
 **Of course if you really like this service and want to thank me a donation would be much appreciated, see the various donation method buttons above.**
 
@@ -20,7 +20,7 @@ Sample **docker-compose.yml**:
 version: "3"
 
 services:
-  huawei-solar:
+  solar-use-optimiser:
     image: danwale/solaruseoptimiser:latest
     restart: always
     environment:
@@ -38,10 +38,10 @@ services:
       - SERILOG__MINIMUMLEVEL=Information # Use Debug if you want to see information on message payloads
       - TZ=Australia/Perth # If you want your logs to display in the servers local timezone rather than UTC set the TZ environment variable to suit
     volumes:
-     - huaweisolar-conf:/etc/huaweisolar
+     - solaruseoptimiser-conf:/etc/solaruseoptimiser
 
 volumes:
-  huaweisolar-conf:
+  solaruseoptimiser-conf:
 
 ```
 
@@ -54,7 +54,7 @@ docker-compose up -d
 **If you want to watch the logs run the command:**
 
 ```bash
-docker-compose logs --follow huawei-solar
+docker-compose logs --follow solar-use-optimiser
 ```
 
 _pressing Ctrl+C will end this command following the logs_
@@ -62,7 +62,7 @@ _pressing Ctrl+C will end this command following the logs_
 **To stop the service run:**
 
 ```bash
-docker-compose stop huawei-solar
+docker-compose stop solar-use-optimiser
 ```
 
 You can configure the entire service using environment variables as shown above, but if you want to use a configuration file, you can put an **appsettings.json** in the mapped volume and it will take effect, environment variables will override any equivalent settings in a file:
@@ -100,7 +100,7 @@ You can configure the entire service using environment variables as shown above,
 
 If you have power sensor devices or grid meter devices, and/or Huawei batteries in your solar setup it is able to pull data from those devices to help send more accurate information onto ChargeHQ to make more informed decisions on the charging. If a Power Sensor exists it will use that over a Grid Meter, if you wish to just use the inverters production data and manage the buffer of "excess" solar power the premises needs you can turn off the extra data sources with toggles in the settings (they default to being enabled with a value of true). This extra functionality hasn't been tested extensively by myself because I don't have these devices in my setup but I've looked at the values from a user for a number of the device types and think this should work, let me know if it doesn't work for you and we can work together to get it fixed. There is no need to turn off the functionality if you don't have the devices, the software is smart enough to detect the devices the system has available to it
 
-#### How to get a Huawei Username and Password
+**How to get a Huawei Username and Password**
 
 In late 2022 Huawei changed the process for getting access to the API's, it now requires you to request an API account from the company that installed your Huawei solar system as the installer now has the responsiblity to create what they call a Northbound API Account that would be used. The limitation on the Huawei system is each installer company can only create a maximum of 5 of these Northbound API Accounts as it's intended that they are used by an integration point rather than individual users. To faciliate this shortcoming it's best to ask the installer to create a Northbound API Account for their entire company that will be shared by all users, this software will only pull the information relevant to the specific station/plant that is named in the configuration.
 
