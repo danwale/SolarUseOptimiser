@@ -5,7 +5,7 @@ services:
     image: danwale/solaruseoptimiser:latest
     restart: always
     environment:
-      - ROUTING__DataSource=Huawei
+      - ROUTING__DATASOURCE=Huawei
       - ROUTING__TARGET=ChargeHQ
       - HUAWEI__BASEURI=https://intl.fusionsolar.huawei.com/
       - HUAWEI__USERNAME= #insert the username Huawei or your installer have provided

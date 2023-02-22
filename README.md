@@ -24,7 +24,7 @@ services:
     image: danwale/solaruseoptimiser:latest
     restart: always
     environment:
-      - ROUTING__DataSource=Huawei #use a name for the source of the solar data
+      - ROUTING__DATASOURCE=Huawei #use a name for the source of the solar data
       - ROUTING__TARGET=ChargeHQ #use a name for the target to send the solar data to
       - HUAWEI__BASEURI= #insert the base URI for the FusionSolar API you're setup on e.g.: https://intl.fusionsolar.huawei.com/
       - HUAWEI__USERNAME= #insert the username Huawei or your installer have provided
