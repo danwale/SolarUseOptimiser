@@ -52,5 +52,18 @@ namespace SolarUseOptimiser
             }
             return false;
         }
+
+        public static string GetUrl(string baseUri, string methodUri)
+        {
+            if (methodUri.StartsWith("/"))
+            {
+                methodUri = methodUri.TrimStart('/');
+            }
+            if (baseUri.EndsWith("/"))
+            {
+                baseUri = baseUri.TrimEnd('/');
+            }
+            return string.Format("{0}/{1}", baseUri, methodUri);
+        }
     }
 }

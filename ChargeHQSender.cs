@@ -39,7 +39,7 @@ namespace SolarUseOptimiser
         {
             this.logger = logger;
 
-            ChargeHQSettings = configuration.GetSection(Constants.CHARGE_HQ_CONFIG_SECION).Get<ChargeHQSettings>();
+            ChargeHQSettings = configuration.GetSection(Constants.ConfigSections.CHARGE_HQ_CONFIG_SECION).Get<ChargeHQSettings>();
 
             var handler = new HttpClientHandler();
             handler.ClientCertificateOptions = ClientCertificateOption.Manual;

@@ -12,7 +12,7 @@ namespace SolarUseOptimiser
             get;
         }
 
-        int PollRate
+        double PollRate
         {
             get;
         }

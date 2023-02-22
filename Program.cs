@@ -28,6 +28,7 @@ namespace SolarUseOptimiser
             var poller = ServiceProvider.GetRequiredService<PeriodicPoller>()
                                         .InitialiseAsync(cts).GetAwaiter().GetResult();
 
+            // Start the poller
             poller.Start();
 
             // Wait until the app unloads or is cancelled
@@ -71,22 +72,22 @@ namespace SolarUseOptimiser
                                                     .Build();
             serviceCollection.AddSingleton(configuration);
 
-            var routing = configuration.GetSection(Constants.ROUTING_SECTION).Get<RoutingSettings>();
+            var routing = configuration.GetSection(Constants.ConfigSections.ROUTING_SECTION).Get<RoutingSettings>();
             if (routing == null)
             {
                 routing = new RoutingSettings();
             }
-            if (routing.Target.Equals(Constants.ROUTE_TARGET_CHARGEHQ, StringComparison.CurrentCultureIgnoreCase))
+            if (routing.Target.Equals(Constants.Routes.Targets.ROUTE_TARGET_CHARGEHQ, StringComparison.CurrentCultureIgnoreCase))
             {
                 serviceCollection.AddSingleton<IDataTarget, ChargeHQSender>(); // Send to ChargeHQ PushAPI
             }
-            if (routing.DataSource.Equals(Constants.ROUTE_DATASOURCE_HUAWEI, StringComparison.CurrentCultureIgnoreCase))
+            if (routing.DataSource.Equals(Constants.Routes.DataSources.ROUTE_DATASOURCE_HUAWEI, StringComparison.CurrentCultureIgnoreCase))
             {
                 serviceCollection.AddSingleton<IDataSource, HuaweiProducer>(); // Pull from Huawei FusionSolar
             }
-            else if (routing.DataSource.Equals(Constants.ROUTE_DATASOURCE_GROWWATT, StringComparison.CurrentCultureIgnoreCase))
+            else if (routing.DataSource.Equals(Constants.Routes.DataSources.ROUTE_DATASOURCE_GROWATT, StringComparison.CurrentCultureIgnoreCase))
             {
-                serviceCollection.AddSingleton<IDataSource, GrowWattProducer>(); // Pull from the GrowWatt API
+                serviceCollection.AddSingleton<IDataSource, GrowattProducer>(); // Pull from the Growatt API
             }
             serviceCollection.AddSingleton<PeriodicPoller>();
 

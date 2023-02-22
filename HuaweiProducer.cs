@@ -1,5 +1,4 @@
 using System.Net;
-using System.Timers;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -64,7 +63,7 @@ namespace SolarUseOptimiser
             get; set;
         } = 0;
 
-        public int PollRate
+        public double PollRate
         {
             get; set;
         }
@@ -83,7 +82,7 @@ namespace SolarUseOptimiser
             {
                 initialised = true;
                 CancellationTokenSource = cancellationTokenSource;
-                HuaweiSettings = configuration.GetSection(Constants.HUAWEI_CONFIG_SECTION).Get<HuaweiSettings>();
+                HuaweiSettings = configuration.GetSection(Constants.ConfigSections.HUAWEI_CONFIG_SECTION).Get<HuaweiSettings>();
                 PollRate = HuaweiSettings.PollRate;
 
                 var cookies = new CookieContainer();
@@ -107,7 +106,7 @@ namespace SolarUseOptimiser
             {
                 logger.LogInformation("Successfully authenticated the user during intialisation.");
 
-                var stationListResponse = await PostDataRequestAsync<GetStationListResponse>(GetUri(Constants.STATION_LIST_URI), null, CancellationTokenSource.Token);
+                var stationListResponse = await PostDataRequestAsync<GetStationListResponse>(GetUri(Constants.Huawei.STATION_LIST_URI), null, CancellationTokenSource.Token);
                 if (stationListResponse.success)
                 {
                     if (stationListResponse.data != null && stationListResponse.data.Count > 0)
@@ -123,7 +122,7 @@ namespace SolarUseOptimiser
                             {
                                 stationCodes = StationCode
                             };
-                            var deviceInfoResponse = await PostDataRequestAsync<DeviceInfoResponse>(GetUri(Constants.DEV_LIST_URI),
+                            var deviceInfoResponse = await PostDataRequestAsync<DeviceInfoResponse>(GetUri(Constants.Huawei.DEV_LIST_URI),
                                             Utility.GetStringContent(gdlr), CancellationTokenSource.Token);
                             if (deviceInfoResponse.success)
                             {
@@ -166,7 +165,7 @@ namespace SolarUseOptimiser
                             {
                                 stationCodes = StationCode
                             };
-                            var deviceInfoResponse = await PostDataRequestAsync<DeviceInfoResponse>(GetUri(Constants.DEV_LIST_URI),
+                            var deviceInfoResponse = await PostDataRequestAsync<DeviceInfoResponse>(GetUri(Constants.Huawei.DEV_LIST_URI),
                                             Utility.GetStringContent(gdlr), CancellationTokenSource.Token);
                             if (deviceInfoResponse.success)
                             {
@@ -213,7 +212,7 @@ namespace SolarUseOptimiser
                 pageNo = pageNumber
             };
             var requestParamContent = Utility.GetStringContent(requestParam);
-            var newStationListResponse = await PostDataRequestAsync<GetStationListNewResponse>(GetUri(Constants.STATION_LIST_NEW_URI), requestParamContent, CancellationTokenSource.Token);
+            var newStationListResponse = await PostDataRequestAsync<GetStationListNewResponse>(GetUri(Constants.Huawei.STATION_LIST_NEW_URI), requestParamContent, CancellationTokenSource.Token);
             if (newStationListResponse.success)
             {
                 if (newStationListResponse.data != null && newStationListResponse.data.list != null && newStationListResponse.data.list.Count > 0)
@@ -329,7 +328,7 @@ namespace SolarUseOptimiser
                     systemCode = HuaweiSettings.Password
                 };
                 var content = Utility.GetStringContent(lcr);
-                var response = await PostDataRequestAsync<BaseResponse>(GetUri(Constants.LOGIN_URI), content, cancellationToken);
+                var response = await PostDataRequestAsync<BaseResponse>(GetUri(Constants.Huawei.LOGIN_URI), content, cancellationToken);
                 if (response.success)
                 {
                     logger.LogInformation("Successfully did login and got back cookie");
@@ -457,7 +456,7 @@ namespace SolarUseOptimiser
                     if (Inverter.devTypeId == 1)
                     {
                         logger.LogDebug("Getting String Inverter Power Data.");
-                        stringPowerData = PostDataRequestAsync<DevRealKpiResponse<DevRealKpiStrInvDataItemMap>>(GetUri(Constants.DEV_REAL_KPI_URI),
+                        stringPowerData = PostDataRequestAsync<DevRealKpiResponse<DevRealKpiStrInvDataItemMap>>(GetUri(Constants.Huawei.DEV_REAL_KPI_URI),
                                                                             Utility.GetStringContent(requestParam),
                                                                             CancellationTokenSource.Token).GetAwaiter().GetResult();
                         if (stringPowerData != null && stringPowerData.success && stringPowerData.data != null &&
@@ -474,7 +473,7 @@ namespace SolarUseOptimiser
                     else if (Inverter.devTypeId == 38)
                     {
                         logger.LogDebug("Getting Residential Inverter Power Data.");
-                        residentialPowerData = PostDataRequestAsync<DevRealKpiResponse<DevRealKpiResInvDataItemMap>>(GetUri(Constants.DEV_REAL_KPI_URI),
+                        residentialPowerData = PostDataRequestAsync<DevRealKpiResponse<DevRealKpiResInvDataItemMap>>(GetUri(Constants.Huawei.DEV_REAL_KPI_URI),
                                                                             Utility.GetStringContent(requestParam),
                                                                             CancellationTokenSource.Token).GetAwaiter().GetResult();
                         if (residentialPowerData != null && residentialPowerData.success && residentialPowerData.data != null &&
@@ -511,7 +510,7 @@ namespace SolarUseOptimiser
                                     devIds = PowerSensor.id.ToString(),
                                     devTypeId = PowerSensor.devTypeId
                                 };
-                                var powerSensorData = PostDataRequestAsync<DevRealKpiResponse<DevRealKpiPowerSensorDataItemMap>>(GetUri(Constants.DEV_REAL_KPI_URI),
+                                var powerSensorData = PostDataRequestAsync<DevRealKpiResponse<DevRealKpiPowerSensorDataItemMap>>(GetUri(Constants.Huawei.DEV_REAL_KPI_URI),
                                                                                         Utility.GetStringContent(powerSensorRequestParam),
                                                                                         CancellationTokenSource.Token).GetAwaiter().GetResult();
                                 if (powerSensorData != null && powerSensorData.success &&
@@ -556,7 +555,7 @@ namespace SolarUseOptimiser
                                         devIds = GridMeter.id.ToString(),
                                         devTypeId = GridMeter.devTypeId
                                     };
-                                    var gridMeterData = PostDataRequestAsync<DevRealKpiResponse<DevRealKpiGridMeterDataItemMap>>(GetUri(Constants.DEV_REAL_KPI_URI),
+                                    var gridMeterData = PostDataRequestAsync<DevRealKpiResponse<DevRealKpiGridMeterDataItemMap>>(GetUri(Constants.Huawei.DEV_REAL_KPI_URI),
                                                                                         Utility.GetStringContent(gridMeterRequestParams),
                                                                                         CancellationTokenSource.Token).GetAwaiter().GetResult();
                                     if (gridMeterData != null && gridMeterData.success &&
@@ -592,7 +591,7 @@ namespace SolarUseOptimiser
                                     devIds = Battery.id.ToString(),
                                     devTypeId = Battery.devTypeId
                                 };
-                                var batteryData = PostDataRequestAsync<DevRealKpiResponse<DevRealKpiBattDataItemMap>>(GetUri(Constants.DEV_REAL_KPI_URI),
+                                var batteryData = PostDataRequestAsync<DevRealKpiResponse<DevRealKpiBattDataItemMap>>(GetUri(Constants.Huawei.DEV_REAL_KPI_URI),
                                                                                         Utility.GetStringContent(batteryReqestParams),
                                                                                         CancellationTokenSource.Token).GetAwaiter().GetResult();
                                 if (batteryData != null && batteryData.success &&
@@ -665,15 +664,7 @@ namespace SolarUseOptimiser
         /// <returns>The full URI for the Huawei Fusion Solar API target</returns>
         private string GetUri(string methodUri)
         {
-            if (methodUri.StartsWith("/"))
-            {
-                methodUri = methodUri.TrimStart('/');
-            }
-            if (HuaweiSettings.BaseURI.EndsWith("/"))
-            {
-                HuaweiSettings.BaseURI = HuaweiSettings.BaseURI.TrimEnd('/');
-            }
-            return string.Format("{0}/{1}", HuaweiSettings.BaseURI, methodUri);
+            return Utility.GetUrl(HuaweiSettings.BaseURI, methodUri);
         }
     }
 }

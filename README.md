@@ -14,6 +14,8 @@ Happy EV motoring, charging as cleanly (and cheaply) as possible!
 
 ## Configuration
 
+**Note:** You only need to include the GROWATT or HUAWEI sections if you have set the Routing.DataSource as Growatt or Huawei respectively.
+
 Sample **docker-compose.yml**:
 
 ```yaml
@@ -26,6 +28,11 @@ services:
     environment:
       - ROUTING__DATASOURCE=Huawei #use a name for the source of the solar data
       - ROUTING__TARGET=ChargeHQ #use a name for the target to send the solar data to
+      - GROWATT__BASEURI=https://server.growatt.com/
+      - GROWATT__USERNAME= #insert Growatt username here
+      - GROWATT__PASSWORD= #insert Growatt password here
+      - GROWATT__POLLRATE=5 #in minutes
+      - GROWATT__USEBATTERYDATA=true #true or false value, if a battery is present should its data
       - HUAWEI__BASEURI= #insert the base URI for the FusionSolar API you're setup on e.g.: https://intl.fusionsolar.huawei.com/
       - HUAWEI__USERNAME= #insert the username Huawei or your installer have provided
       - HUAWEI__PASSWORD= #insert the system code/password Huawei or your installer have issued
@@ -73,6 +80,13 @@ You can configure the entire service using environment variables as shown above,
       "DataSource": "Huawei",
       "Target": "ChargeHQ"
     },
+    "Growatt": {
+       "BaseURI": "https://server.growatt.com/",
+       "Username": "<Username Here>",
+       "Password": "<Password Here>",
+       "PollRate": 5,
+       "UseBatteryData": true
+    },
     "Huawei": {
         "BaseURI": "https://intl.fusionsolar.huawei.com/",
         "Username":"<Username Here>",
@@ -115,9 +129,9 @@ The next step in the setup is to grant access to certain (or all) plants and wha
 
 The installer would then provide the user with the **Username** and **Password** they created for the Northbound API Account and provide you with what your station/plant name is (though you can get this yourself from the FusionSolar Moblie App, if you click **Devices** in the app then select your inverter and then click **Basic Info** you'll get a screen that shows the **Plant name**)
 
-### GrowWatt
+### Growatt
 
-This is a new implementation of an IDataSource that pulls data from the GrowWatt solar data that is collected.
+This is a new implementation of an IDataSource that pulls data from the Growatt solar data that is collected. Thanks to Richard Ramshaw for reverse engineering the API.
 
 ## Data Targets
 
