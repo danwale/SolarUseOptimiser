@@ -14,7 +14,7 @@ Happy EV motoring, charging as cleanly (and cheaply) as possible!
 
 ## Configuration
 
-**Note:** You only need to include the GROWATT or HUAWEI sections if you have set the Routing.DataSource as Growatt or Huawei respectively.
+**Note:** You only need to include the GROWATT, HUAWEI or IoTaWatt sections if you have set the Routing.DataSource as Growatt or Huawei or IoTaWatt respectively.
 
 Sample **docker-compose.yml**:
 
@@ -28,6 +28,8 @@ services:
     environment:
       - ROUTING__DATASOURCE=Huawei #use a name for the source of the solar data
       - ROUTING__TARGET=ChargeHQ #use a name for the target to send the solar data to
+      - IOTAWATT__IPADDRESS= #insert the IP Address of the IoTaWatt Power Sensor device
+      - IOTAWATT__POLLRATE=1 #in minutes how often to poll the sensor
       - GROWATT__BASEURI=https://server.growatt.com/
       - GROWATT__USERNAME= #insert Growatt username here
       - GROWATT__PASSWORD= #insert Growatt password here
@@ -80,6 +82,10 @@ You can configure the entire service using environment variables as shown above,
       "DataSource": "Huawei",
       "Target": "ChargeHQ"
     },
+    "IoTaWatt": {
+        "IPAddress": "<IP Address of the Power Sensor>",
+        "PollRate": 1
+    },
     "Growatt": {
        "BaseURI": "https://server.growatt.com/",
        "Username": "<Username Here>",
@@ -131,7 +137,11 @@ The installer would then provide the user with the **Username** and **Password**
 
 ### Growatt
 
-This is a new implementation of an IDataSource that pulls data from the Growatt solar data that is collected. Thanks to Richard Ramshaw for reverse engineering the API.
+This is a new implementation of an IDataSource that pulls data from the Growatt solar data that is collected. Thanks to Richard Ramshaw for reverse engineering the API. It does rely on the you having the Current Power (AC) value populated when you login to the Growatt Portal to get the live produced current power value.
+
+### IoTaWatt
+
+This implementation hasn't been tested, it's based on a simple powershell script that Dinesh Pannu created.
 
 ## Data Targets
 

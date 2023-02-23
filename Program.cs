@@ -89,6 +89,10 @@ namespace SolarUseOptimiser
             {
                 serviceCollection.AddSingleton<IDataSource, GrowattProducer>(); // Pull from the Growatt API
             }
+            else if (routing.DataSource.Equals(Constants.Routes.DataSources.ROUTE_DATASOURCE_IOTAWATT, StringComparison.CurrentCultureIgnoreCase))
+            {
+                serviceCollection.AddSingleton<IDataSource, IoTaWattProducer>(); // Pull from the IoTaWatt Power Sensor API
+            }
             serviceCollection.AddSingleton<PeriodicPoller>();
 
             // Configure Logger

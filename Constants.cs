@@ -8,6 +8,7 @@ namespace SolarUseOptimiser
         {
             public const string HUAWEI_CONFIG_SECTION = "Huawei";
             public const string GROWATT_CONFIG_SECTION = "Growatt";
+            public const string IOTAWATT_CONFIG_SECTION = "IoTaWatt";
             public const string CHARGE_HQ_CONFIG_SECION = "ChargeHQ";
             public const string ROUTING_SECTION = "Routing";
         }
@@ -18,6 +19,7 @@ namespace SolarUseOptimiser
             {
                 public const string ROUTE_DATASOURCE_HUAWEI = "Huawei";
                 public const string ROUTE_DATASOURCE_GROWATT = "Growatt"; 
+                public const string ROUTE_DATASOURCE_IOTAWATT = "IoTaWatt";
             }
 
             public class Targets
@@ -54,6 +56,11 @@ namespace SolarUseOptimiser
 
             public const string DEV_TYPE_MIX = "mix";
             public const string DEV_TYPE_INV = "inv";
-        }        
+        }
+
+        public class IoTaWatt
+        {
+            public const string URL_TEMPLATE = "http://{IOTAWATT_IP_ADDRESS}/query?select=[Mains.watts,Solar.watts,Consumption.watts]&begin=s-1m&end=s&group=all&header=no";
+        }
     }
 }

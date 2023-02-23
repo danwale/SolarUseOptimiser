@@ -7,6 +7,8 @@ services:
     environment:
       - ROUTING__DATASOURCE=Huawei #Huawei or Growatt
       - ROUTING__TARGET=ChargeHQ
+      - IOTAWATT__IPADDRESS= #insert the IP Address of the IoTaWatt Power Sensor device
+      - IOTAWATT__POLLRATE=1 #in minutes how often to poll the sensor
       - GROWATT__BASEURI=https://server.growatt.com/
       - GROWATT__USERNAME= #insert Growatt username here
       - GROWATT__PASSWORD= #insert Growatt password here
