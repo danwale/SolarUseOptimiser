@@ -288,15 +288,17 @@ namespace SolarUseOptimiser
                 var statusResponse = GetMixStatus(cancellationTokenSource.Token).GetAwaiter().GetResult();
                 if (statusResponse != null && statusResponse.obj != null)
                 {
-                    pushData.siteMeters.production_kw = statusResponse.obj.ppv;
+                    pushData.siteMeters.production_kw = InverterCurrentProduction;
                     pushData.siteMeters.consumption_kw = statusResponse.obj.pLocalLoad;
                     pushData.siteMeters.exported_kwh = TotalPVPower;
                     if (statusResponse.obj.pactouser > 0)
                     {
+                        // Grid Import
                         pushData.siteMeters.net_import_kw = statusResponse.obj.pactouser;
                     }
                     else
                     {
+                        // Grid Export
                         pushData.siteMeters.net_import_kw = -1 * statusResponse.obj.pactogrid;
                     }
                     
