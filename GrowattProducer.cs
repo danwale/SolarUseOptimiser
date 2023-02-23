@@ -53,6 +53,11 @@ namespace SolarUseOptimiser
             get; set;
         }
 
+        private long? EpocTimestamp
+        {
+            get; set;
+        }
+
         private string DeviceType
         {
             get; set;
@@ -203,6 +208,7 @@ namespace SolarUseOptimiser
                         TotalPVPower = Double.Parse(deviceList.obj.datas[0].eTotal);
                         DeviceType = deviceList.obj.datas[0].deviceTypeName;
                         InverterCurrentProduction = Double.Parse(deviceList.obj.datas[0].pac) / 1000; //convert to kW
+                        EpocTimestamp = GetEpocTimestampInMs(deviceList.obj.datas[0].lastUpdateTime);
                         return true;
                     }
                 }
@@ -212,6 +218,21 @@ namespace SolarUseOptimiser
             {
                 logger.LogError(ex, "An error occurred getting the device serial number and total power output.");
                 return false;
+            }
+        }
+
+        private long? GetEpocTimestampInMs(string dateTimeString)
+        {
+            try
+            {
+                DateTime dt = DateTime.Parse(dateTimeString);
+                TimeSpan ts = dt.ToUniversalTime() - new DateTime(1970, 1, 1);
+                return (long)ts.TotalMilliseconds;
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Failed to parse the date time string for the last updated {0}", dateTimeString);
+                return null;
             }
         }
 
@@ -281,6 +302,7 @@ namespace SolarUseOptimiser
             SiteMeterPush pushData = new SiteMeterPush
             {
                 apiKey = userId,
+                tsms = EpocTimestamp,
                 siteMeters = new SiteMeter()
             };
             if (DeviceType != null && DeviceType.Equals(Constants.Growatt.DEV_TYPE_MIX, StringComparison.CurrentCultureIgnoreCase))
