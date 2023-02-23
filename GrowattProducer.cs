@@ -48,6 +48,11 @@ namespace SolarUseOptimiser
             get; set;
         }
 
+        private string DeviceType
+        {
+            get; set;
+        }
+
         public double PollRate
         {
             get; set;
@@ -191,6 +196,7 @@ namespace SolarUseOptimiser
                     {
                         SerialNumber = deviceList.obj.datas[0].sn;
                         TotalPVPower = Double.Parse(deviceList.obj.datas[0].eTotal);
+                        DeviceType = deviceList.obj.datas[0].deviceTypeName;
                         return true;
                     }
                 }
@@ -198,17 +204,53 @@ namespace SolarUseOptimiser
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "An error occurred getting the device serial number.");
+                logger.LogError(ex, "An error occurred getting the device serial number and total power output.");
                 return false;
             }
         }
 
-        private async Task<MixStatusResponse> GetStatus(CancellationToken cancellationToken)
+        private async Task<InvStatusResponse> GetInvStatus(CancellationToken cancellationToken)
         {
             try
             {
                 _ = await GetDevices(cancellationToken);
-                string url = Utility.GetUrl(GrowattSettings.BaseURI, Constants.Growatt.GET_STATUS);
+                string url = Utility.GetUrl(GrowattSettings.BaseURI, Constants.Growatt.GET_INV_STATUS);
+                url += "?plantId=" + PlantId; // TODO: Verify the URL has the plantId query string param
+                var nvc = new List<KeyValuePair<string, string>>();
+                nvc.Add(new KeyValuePair<string, string>("invSn", SerialNumber)); // TODO: Check what this param is called
+                var req = new HttpRequestMessage(HttpMethod.Post, url) { Content = new FormUrlEncodedContent(nvc) };
+                var response = await _client.SendAsync(req);
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    bool wasCookieValid = WasCookieValid(response, out string json, cancellationToken);
+                    if (!wasCookieValid)
+                    {
+                        // refresh the cookies
+                        await GetCookies(cancellationToken);
+                    }
+
+                    var statusResponse = JsonConvert.DeserializeObject<InvStatusResponse>(json);
+                    if (statusResponse != null && statusResponse.obj != null)
+                    {
+                        return statusResponse;
+                    }
+                }
+                return null;
+
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred getting the Inverter device status data.");
+                return null;
+            }
+        }
+
+        private async Task<MixStatusResponse> GetMixStatus(CancellationToken cancellationToken)
+        {
+            try
+            {
+                _ = await GetDevices(cancellationToken);
+                string url = Utility.GetUrl(GrowattSettings.BaseURI, Constants.Growatt.GET_MIX_STATUS);
                 url += "?plantId=" + PlantId;
                 var nvc = new List<KeyValuePair<string, string>>();
                 nvc.Add(new KeyValuePair<string, string>("mixSn", SerialNumber));
@@ -233,7 +275,7 @@ namespace SolarUseOptimiser
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "An error occurred getting the device serial number.");
+                logger.LogError(ex, "An error occurred getting the MIX device status data.");
                 return null;
             }
         }
@@ -271,31 +313,60 @@ namespace SolarUseOptimiser
                 apiKey = userId,
                 siteMeters = new SiteMeter()
             };
-            var statusResponse = GetStatus(cancellationTokenSource.Token).GetAwaiter().GetResult();
-            if (statusResponse != null)
+            if (DeviceType != null && DeviceType.Equals(Constants.Growatt.DEV_TYPE_MIX, StringComparison.CurrentCultureIgnoreCase))
             {
-                pushData.siteMeters.production_kw = statusResponse.obj.ppv;
-                pushData.siteMeters.consumption_kw = statusResponse.obj.pLocalLoad;
-                pushData.siteMeters.exported_kwh = TotalPVPower;
-                if (statusResponse.obj.pactouser > 0)
+                var statusResponse = GetMixStatus(cancellationTokenSource.Token).GetAwaiter().GetResult();
+                if (statusResponse != null && statusResponse.obj != null)
                 {
-                    pushData.siteMeters.net_import_kw = statusResponse.obj.pactouser;
+                    pushData.siteMeters.production_kw = statusResponse.obj.ppv;
+                    pushData.siteMeters.consumption_kw = statusResponse.obj.pLocalLoad;
+                    pushData.siteMeters.exported_kwh = TotalPVPower;
+                    if (statusResponse.obj.pactouser > 0)
+                    {
+                        pushData.siteMeters.net_import_kw = statusResponse.obj.pactouser;
+                    }
+                    else
+                    {
+                        pushData.siteMeters.net_import_kw = -1 * statusResponse.obj.pactogrid;
+                    }
+                    
+                    if (statusResponse.obj.wBatteryType == "1" && GrowattSettings.UseBatteryData)
+                    {
+                        pushData.siteMeters.battery_soc = Double.Parse(statusResponse.obj.SOC) / 100;
+                        pushData.siteMeters.battery_discharge_kw = Double.Parse(statusResponse.obj.pdisCharge1);
+                        //pushData.siteMeters.battery_energy_kwh = //TODO: Find if we have the total battery current capacity
+                    }
                 }
                 else
                 {
-                    pushData.siteMeters.net_import_kw = -1 * statusResponse.obj.pactogrid;
+                    pushData.error = "Failed to get the Growatt status data from the inverter/battery mix API.";
                 }
-                
-                if (statusResponse.obj.wBatteryType == "1" && GrowattSettings.UseBatteryData)
+            }
+            else if (DeviceType != null && DeviceType.Equals(Constants.Growatt.DEV_TYPE_INV, StringComparison.CurrentCultureIgnoreCase))
+            {
+                var statusResponse = GetInvStatus(cancellationTokenSource.Token).GetAwaiter().GetResult();
+                if (statusResponse != null && statusResponse.obj != null)
                 {
-                    pushData.siteMeters.battery_soc = Double.Parse(statusResponse.obj.SOC) / 100;
-                    pushData.siteMeters.battery_discharge_kw = Double.Parse(statusResponse.obj.pdisCharge1);
-                    //pushData.siteMeters.battery_energy_kwh = //TODO: Find if we have the total battery current capacity
+                    // pushData.siteMeters.production_kw = statusResponse.obj.ppv;
+                    // pushData.siteMeters.consumption_kw = statusResponse.obj.pLocalLoad;
+                    // pushData.siteMeters.exported_kwh = TotalPVPower;
+                    // if (statusResponse.obj.pactouser > 0)
+                    // {
+                    //     pushData.siteMeters.net_import_kw = statusResponse.obj.pactouser;
+                    // }
+                    // else
+                    // {
+                    //     pushData.siteMeters.net_import_kw = -1 * statusResponse.obj.pactogrid;
+                    // }
+                }
+                else
+                {
+                    pushData.error = "Failed to get the Growatt status data from the inverter API.";
                 }
             }
             else
             {
-                pushData.error = "Failed to get the Growatt status data";
+                pushData.error = "An invalid device type was detected, it should be 'inv' or 'mix'.";
             }
 
             return pushData;
