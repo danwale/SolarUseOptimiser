@@ -50,10 +50,7 @@ namespace SolarUseOptimiser
 
             public const string DEVICE_LIST = "panel/getDevicesByPlantList";
 
-            public const string GET_MIX_STATUS = "panel/mix/getMIXStatusData";
-
-            // TODO: need to discover this, this is not correct for inverter device types
-            public const string GET_INV_STATUS = "panel/inv/getINVStatusData"; 
+            public const string GET_MIX_STATUS = "panel/mix/getMIXStatusData"; 
 
             public const string DEV_TYPE_MIX = "mix";
             public const string DEV_TYPE_INV = "inv";
