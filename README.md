@@ -1,14 +1,15 @@
 # Solar Use Optimiser Service
 
-[![Docker Image CI](https://github.com/danwale/SolarUseOptimizer/actions/workflows/docker-image.yml/badge.svg?branch=main)](https://github.com/danwale/SolarUseOptimizer/actions/workflows/docker-image.yml)
+[![Docker Image CI](https://github.com/danwale/SolarUseOptimiser/actions/workflows/docker-image.yml/badge.svg?branch=main)](https://github.com/danwale/SolarUseOptimizer/actions/workflows/docker-image.yml)
 
 [![Donate PayPal](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/danwale?country.x=AU&locale.x=en_AU) <a href="https://www.buymeacoffee.com/danwale" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-blue.png" alt="Buy Me A Coffee" style="height: 20px !important;width: 105px !important;" ></a>
+<a href="https://ts.la/daniel336154" target="_blank"><img src="https://github.com/danwale/HuaweiFusionSolar-ChargeHQ-Integration/raw/main/loot_box.png" alt="Daniel's Tesla Loot Box Referral" style="height:86px !important;width=98px !important;"></a>
 
 The intention of this service is to build upon the Huawei FusionSolar to ChargeHQ integration that I'd previously created and provide a framework for plugging in different data sources and different data targets. This will allow this service to be used for building out integrations of many different solar systems to many different types of consumption optimisation services. It will poll a solar system for how much solar power is being generated (and if possible determine the excess) and then push this onto the configured target (which could be ChargeHQ) to allow that target to regulate the power consumed by the target such as an EV charging or anything else that might be able to use variable power consumption rates. This allows for optimisation of the use of solar energy rather than grid supplied energy.
 
 This service is 100% interchangable with the [danwale/huaweifusionsolar2chargehq](https://hub.docker.com/repository/docker/danwale/huaweifusionsolar2chargehq/general) that provides the functionality hard coded between Huawei FusionSolar and ChargeHQ, this project decouples a few things to make it so it can easily extended to support other solar systems and potentially other targets (_a custom Tesla charge rate control service for instance or any other brand...your imagination is your limiting factor_).
 
-**Of course if you really like this service and want to thank me a donation would be much appreciated, see the various donation method buttons above.**
+**Of course if you really like this service and want to thank me a donation would be much appreciated, see the various donation method buttons above or if buying a new Tesla product use my referral code to also get some credits: [https://ts.la/daniel336154](https://ts.la/daniel336154)**
 
 Happy EV motoring, charging as cleanly (and cheaply) as possible!
 
