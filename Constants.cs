@@ -20,6 +20,7 @@ namespace SolarUseOptimiser
                 public const string ROUTE_DATASOURCE_HUAWEI = "Huawei";
                 public const string ROUTE_DATASOURCE_GROWATT = "Growatt"; 
                 public const string ROUTE_DATASOURCE_IOTAWATT = "IoTaWatt";
+                public const string ROUTE_DATASOURCE_ALPHAESS = "AlphaESS";
             }
 
             public class Targets
@@ -61,6 +62,13 @@ namespace SolarUseOptimiser
         public class IoTaWatt
         {
             public const string URL_TEMPLATE = "http://{IOTAWATT_IP_ADDRESS}/query?select=[Mains.watts,Solar.watts,Consumption.watts]&begin=s-1m&end=s&group=all&header=no";
+        }
+
+        public class AlphaESS
+        {
+            public const string URL_REAL_TIME_DATA = "https://cloud.alphaess.com/api/ESS/GetLastPowerDataBySN?sys_sn={SERIAL_NUMBER}&noLoading=true"; //POST
+
+            public const string GET_CUSTOMER_DATA = "https://cloud.alphaess.com/api/Account/GetCustomMenuESSlist"; //GET
         }
     }
 }
