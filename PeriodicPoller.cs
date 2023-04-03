@@ -106,9 +106,19 @@ namespace SolarUseOptimiser
             {
                 if (!CancellationTokenSource.IsCancellationRequested)
                 {
+                    int retryCount = 3;
                     while (!DataSource.IsInitialised)
                     {
                         DataSource.Authenticate(CancellationTokenSource).GetAwaiter().GetResult();
+                        if (retryCount > 0) 
+                        {
+                            Thread.Sleep(5000);
+                            retryCount--;
+                        }
+                        else
+                        {
+                            return;
+                        }
                     }
 
                     SiteMeterPush pushData = DataSource.GetSiteMeterData(DataTarget.UserId, CancellationTokenSource);

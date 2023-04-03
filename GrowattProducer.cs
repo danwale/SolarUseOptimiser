@@ -139,7 +139,9 @@ namespace SolarUseOptimiser
                 string url = Utility.GetUrl(GrowattSettings.BaseURI, Constants.Growatt.LOGIN_URI);
                 var req = new HttpRequestMessage(HttpMethod.Post, url) { Content = new FormUrlEncodedContent(nvc) };
                 var res = await _client.SendAsync(req);
-                if (res.StatusCode == HttpStatusCode.OK)
+                var jsonResponse = Utility.GetJsonResponse(res, cancellationToken);
+                var loginResponse = JsonConvert.DeserializeObject<LogonResponse>(jsonResponse);
+                if (res.StatusCode == HttpStatusCode.OK && loginResponse.result > 0)
                 {
                     return true;
                 }

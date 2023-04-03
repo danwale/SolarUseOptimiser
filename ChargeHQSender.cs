@@ -22,7 +22,7 @@ namespace SolarUseOptimiser
         {
             get
             {
-                if (ChargeHQSettings.ApiKey != null && ChargeHQSettings.ApiKey != default(Guid))
+                if (ChargeHQSettings != null && ChargeHQSettings.ApiKey != null && ChargeHQSettings.ApiKey != default(Guid))
                 {
                     return ChargeHQSettings.ApiKey.Value.ToString();
                 }
@@ -134,7 +134,7 @@ namespace SolarUseOptimiser
         /// </returns>
         public async Task<bool> SendData(SiteMeterPush data)
         {
-            if (ChargeHQSettings.ApiKey != null && ChargeHQSettings.ApiKey != default(Guid))
+            if (ChargeHQSettings != null && ChargeHQSettings.ApiKey != null && ChargeHQSettings.ApiKey != default(Guid))
             {
                 // Send the SiteMeterPush data model to ChargeHQ Push API
                 logger.LogDebug("ChargeHQ Site Meter Push: {0}", JsonConvert.SerializeObject(data, Formatting.None));
