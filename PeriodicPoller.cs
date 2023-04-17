@@ -58,13 +58,13 @@ namespace SolarUseOptimiser
                 this.MaxErrors = configuration.GetValue<int>(Constants.MAX_ERRORS);
                 if (this.MaxErrors == 0)
                 {
-                    logger.LogError("Failed to read the MaxErrors configuration for how many times to have an error before forcing a restart. Using a default of 5.");
+                    logger.LogError("Failed to read the MaxErrors configuration for how many times to have an error before forcing a restart. Using a default of 2.");
                     this.MaxErrors = 2;
                 }
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Failed to read the MaxErrors configuration for how many times to have an error before forcing a restart. Using a default of 5.");
+                logger.LogError(ex, "Failed to read the MaxErrors configuration for how many times to have an error before forcing a restart. Using a default of 2.");
                 this.MaxErrors = 2;
             }
 
