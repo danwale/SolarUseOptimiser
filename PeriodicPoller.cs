@@ -23,6 +23,8 @@ namespace SolarUseOptimiser
 
         private bool initialised = false;
 
+        private int errorCount = 0;
+
         private Timer Timer
         {
             get; set;
@@ -38,6 +40,11 @@ namespace SolarUseOptimiser
             get; set;
         }
 
+        private int MaxErrors
+        {
+            get; set;
+        }
+
         private static CancellationTokenSource CancellationTokenSource;
 
         public PeriodicPoller(IConfiguration configuration, IDataSource dataProducer, IDataTarget dataConsumer, ILogger<PeriodicPoller> logger)
@@ -45,6 +52,21 @@ namespace SolarUseOptimiser
             this.configuration = configuration;
             this.DataSource = dataProducer;
             this.DataTarget = dataConsumer;
+
+            try 
+            {
+                this.MaxErrors = configuration.GetValue<int>(Constants.MAX_ERRORS);
+                if (this.MaxErrors == 0)
+                {
+                    logger.LogError("Failed to read the MaxErrors configuration for how many times to have an error before forcing a restart. Using a default of 5.");
+                    this.MaxErrors = 2;
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed to read the MaxErrors configuration for how many times to have an error before forcing a restart. Using a default of 5.");
+                this.MaxErrors = 2;
+            }
 
             this.logger = logger;
         }
@@ -137,6 +159,7 @@ namespace SolarUseOptimiser
                     }
                     else
                     {
+                        errorCount++;
                         bool sentErrorDataSuccess = DataTarget.SendErrorData(pushData).GetAwaiter().GetResult();
                         if (sentErrorDataSuccess)
                         {
@@ -145,6 +168,12 @@ namespace SolarUseOptimiser
                         else
                         {
                             logger.LogError("Failed to send the error data to {0}.", DataTarget.Name);
+                        }
+                        if (errorCount >= MaxErrors)
+                        {
+                            logger.LogWarning("The maximum number of errors has occurred and the system is being reset.");
+                            DataSource.Restart(CancellationTokenSource);
+                            errorCount = 0;
                         }
                     }                    
                 }

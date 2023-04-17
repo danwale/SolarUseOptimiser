@@ -4,6 +4,7 @@ namespace SolarUseOptimiser
 {
     public class Constants
     {
+        public const string MAX_ERRORS = "MaxErrors";
         public class ConfigSections
         {
             public const string HUAWEI_CONFIG_SECTION = "Huawei";

@@ -27,5 +27,7 @@ namespace SolarUseOptimiser
         Task<bool> Authenticate(CancellationTokenSource cancellationTokenSource);
 
         SiteMeterPush GetSiteMeterData(string userId, CancellationTokenSource cancellationTokenSource);
+
+        Task Restart(CancellationTokenSource cancellationTokenSource);
     }
 }

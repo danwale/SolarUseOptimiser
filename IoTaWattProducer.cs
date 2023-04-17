@@ -40,6 +40,12 @@ namespace SolarUseOptimiser
             this.configuration = configuration;
         }
 
+        public async Task Restart(CancellationTokenSource cancellationTokenSource)
+        {
+            IsInitialised = false;
+            await InitialiseAsync(cancellationTokenSource);
+        }
+
         public Task<IDataSource> InitialiseAsync(CancellationTokenSource cancellationTokenSource)
         {
             if (!IsInitialised)
