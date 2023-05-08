@@ -1,6 +1,6 @@
 using System.Threading;
 
-
+using SolarUseOptimiser.Models;
 using SolarUseOptimiser.Models.ChargeHQ;
 
 namespace SolarUseOptimiser
@@ -24,7 +24,7 @@ namespace SolarUseOptimiser
 
         Task<IDataSource> InitialiseAsync(CancellationTokenSource cancellationTokenSource);
 
-        Task<bool> Authenticate(CancellationTokenSource cancellationTokenSource);
+        Task<CommandResponse> Authenticate(CancellationTokenSource cancellationTokenSource);
 
         SiteMeterPush GetSiteMeterData(string userId, CancellationTokenSource cancellationTokenSource);
 

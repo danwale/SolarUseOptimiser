@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 
 using Newtonsoft.Json;
 
+using SolarUseOptimiser.Models;
 using SolarUseOptimiser.Models.ChargeHQ;
 using SolarUseOptimiser.Models.Configuration;
 using SolarUseOptimiser.Models.Huawei;
@@ -100,12 +101,13 @@ namespace SolarUseOptimiser
                     return true;
                 };
                 _client = new HttpClient(_handler);
-                IsInitialised = await Authenticate(cancellationTokenSource);
+                var authResposne = await Authenticate(cancellationTokenSource);
+                IsInitialised = authResposne.Success;
             }
             return this;
         }
 
-        public async Task<bool> Authenticate(CancellationTokenSource cancellationTokenSource)
+        public async Task<CommandResponse> Authenticate(CancellationTokenSource cancellationTokenSource)
         {
             var success = await GetXsrfToken(CancellationTokenSource.Token);
             if (success)
@@ -137,22 +139,39 @@ namespace SolarUseOptimiser
                                     bool foundInverter = SetDeviceInfos(deviceInfoResponse.data);
                                     if (!foundInverter)
                                     {
-                                        return false;
+                                        return new CommandResponse
+                                        {
+                                            Success = false,
+                                            Message = "inverter not found"
+                                        };
                                     }
                                 }
                             }
-                            return true;
+                            return new CommandResponse
+                            {
+                                Success = true
+                            };
                         }
                         else
                         {
-                            logger.LogError("The station with the name '{0}' could not be found when listing the stations:", HuaweiSettings.StationName);
-                            return false;
+                            string message = string.Format("The station with the name '{0}' could not be found when listing the stations.", HuaweiSettings.StationName);
+                            logger.LogError(message);
+                            return new CommandResponse
+                            {
+                                Success = false,
+                                Message = message
+                            };
                         }
                     }
                     else
                     {
-                        logger.LogError("There were no plants/stations associated with this login.");
-                        return false;
+                        string message = "There were no plants/stations associated with this login.";
+                        logger.LogError(message);
+                        return new CommandResponse
+                        {
+                            Success = false,
+                            Message = message
+                        };
                     }
                 }
                 else
@@ -180,29 +199,51 @@ namespace SolarUseOptimiser
                                     bool foundInverter = SetDeviceInfos(deviceInfoResponse.data);
                                     if (!foundInverter)
                                     {
-                                        return false;
+                                        return new CommandResponse
+                                        {
+                                            Success = false,
+                                            Message = "inverter not found"
+                                        };
                                     }
                                 }
                             }
-                            return true;
+                            return new CommandResponse
+                            {
+                                Success = true
+                            };
                         }
                         else
                         {
-                            logger.LogError("The station with the name '{0}' could not be found when listing the stations.", HuaweiSettings.StationName);
-                            return false;
+                            string message = string.Format("The station with the name '{0}' could not be found when listing the stations.", HuaweiSettings.StationName);
+                            logger.LogError(message);
+                            return new CommandResponse
+                            {
+                                Success = false,
+                                Message = message
+                            };
                         }
                     }
                     else
                     {
-                        logger.LogError("The reason for the failure of the original list stations interface was not 401, it was {0}", stationListResponse.failCode);
-                        return false;
+                        string message = string.Format("The reason for the failure of the original list stations interface was not 401, it was {0}", stationListResponse.failCode);
+                        logger.LogError(message);
+                        return new CommandResponse
+                        {
+                            Success = false,
+                            Message = message
+                        };
                     }
                 }
             }
             else
             {
-                logger.LogError("Failed to authenticate the user during initialisation.");
-                return false;
+                string message = "Failed to authenticate the user during initialisation.";
+                logger.LogError(message);
+                return new CommandResponse
+                {
+                    Success = false,
+                    Message = message
+                };
             }
         }
 

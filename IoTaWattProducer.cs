@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 
 using Newtonsoft.Json;
 
+using SolarUseOptimiser.Models;
 using SolarUseOptimiser.Models.ChargeHQ;
 using SolarUseOptimiser.Models.Configuration;
 using SolarUseOptimiser.Models.IoTaWatt;
@@ -67,9 +68,9 @@ namespace SolarUseOptimiser
             return Task.FromResult<IDataSource>(this);
         }
 
-        public Task<bool> Authenticate(CancellationTokenSource cancellationTokenSource)
+        public Task<CommandResponse> Authenticate(CancellationTokenSource cancellationTokenSource)
         {
-            return Task.FromResult<bool>(true);
+            return Task.FromResult<CommandResponse>(new CommandResponse{Success = true});
         }
 
         public SiteMeterPush GetSiteMeterData(string userId, CancellationTokenSource cancellationTokenSource)

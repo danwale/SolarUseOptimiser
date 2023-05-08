@@ -128,10 +128,11 @@ namespace SolarUseOptimiser
             {
                 if (!CancellationTokenSource.IsCancellationRequested)
                 {
+                    SiteMeterPush pushData = null;
                     int retryCount = 3;
                     while (!DataSource.IsInitialised)
                     {
-                        DataSource.Authenticate(CancellationTokenSource).GetAwaiter().GetResult();
+                        var response = DataSource.Authenticate(CancellationTokenSource).GetAwaiter().GetResult();
                         if (retryCount > 0) 
                         {
                             Thread.Sleep(5000);
@@ -139,11 +140,19 @@ namespace SolarUseOptimiser
                         }
                         else
                         {
-                            return;
+                            pushData = new SiteMeterPush
+                            {
+                                apiKey = DataTarget.UserId,
+                                error = string.Format($"{DataSource.Name} responded with {response.Message}")
+                            };
+                            break;
                         }
                     }
 
-                    SiteMeterPush pushData = DataSource.GetSiteMeterData(DataTarget.UserId, CancellationTokenSource);
+                    if (string.IsNullOrWhiteSpace(pushData.error))
+                    {
+                        pushData = DataSource.GetSiteMeterData(DataTarget.UserId, CancellationTokenSource);
+                    }
 
                     if (string.IsNullOrWhiteSpace(pushData.error))
                     {

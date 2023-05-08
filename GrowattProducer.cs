@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 
 using Newtonsoft.Json;
 
+using SolarUseOptimiser.Models;
 using SolarUseOptimiser.Models.ChargeHQ;
 using SolarUseOptimiser.Models.Configuration;
 using SolarUseOptimiser.Models.Growatt;
@@ -100,15 +101,16 @@ namespace SolarUseOptimiser
                     return true;
                 };
                 _client = new HttpClient(_handler);
-                IsInitialised = await Authenticate(cancellationTokenSource);
+                var authResponse = await Authenticate(cancellationTokenSource);
+                IsInitialised = authResponse.Success;
             }
             return this;
         }
 
-        public async Task<bool> Authenticate(CancellationTokenSource cancellationTokenSource)
+        public async Task<CommandResponse> Authenticate(CancellationTokenSource cancellationTokenSource)
         {
-            var success = await GetCookies(CancellationTokenSource.Token);
-            if (success) 
+            var cookieResponse = await GetCookies(CancellationTokenSource.Token);
+            if (cookieResponse.Success) 
             {
                 logger.LogInformation("Successfully authenticated the user against the Growatt API");
 
@@ -118,22 +120,34 @@ namespace SolarUseOptimiser
                     var deviceListSuccess = await GetDevices(cancellationTokenSource.Token);
                     if (deviceListSuccess)
                     {
-                        return true;
+                        return new CommandResponse { Success = true };
                     }
                     else
                     {
-                        return false;
+                        return new CommandResponse 
+                        { 
+                            Success = false, 
+                            Message = "Get device list failed" 
+                        };
                     }
                 }
                 else
                 {
-                    return false;
+                    return new CommandResponse 
+                    { 
+                        Success = false, 
+                        Message = "Get plant list failed" 
+                    };;
                 }
             }
-            return false;
+            return new CommandResponse 
+            { 
+                Success = false, 
+                Message = cookieResponse.Message
+            };
         }
 
-        private async Task<bool> GetCookies(CancellationToken cancellationToken)
+        private async Task<CommandResponse> GetCookies(CancellationToken cancellationToken)
         {
             if (initialised)
             {
@@ -149,15 +163,26 @@ namespace SolarUseOptimiser
                 var loginResponse = JsonConvert.DeserializeObject<LogonResponse>(jsonResponse);
                 if (res.StatusCode == HttpStatusCode.OK && loginResponse.result > 0)
                 {
-                    return true;
+                    return new CommandResponse
+                    {
+                        Success = true
+                    };
                 }
                 else
                 {
                     logger.LogWarning($"Failed to authenticate with Growatt server returning the message: {loginResponse.msg}");
-                    return false;
+                    return new CommandResponse 
+                    { 
+                        Success = false, 
+                        Message = loginResponse.msg
+                    };
                 }
             }
-            return false;
+            return new CommandResponse 
+            { 
+                Success = false, 
+                Message = "Not initialised" 
+            };
         }
 
         private async Task<bool> GetPlantList( CancellationToken cancellationToken)
