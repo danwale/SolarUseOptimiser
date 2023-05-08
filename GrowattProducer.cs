@@ -153,6 +153,7 @@ namespace SolarUseOptimiser
                 }
                 else
                 {
+                    logger.LogWarning($"Failed to authenticate with Growatt server returning the message: {loginResponse.msg}");
                     return false;
                 }
             }
