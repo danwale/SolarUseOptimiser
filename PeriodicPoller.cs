@@ -149,7 +149,7 @@ namespace SolarUseOptimiser
                         }
                     }
 
-                    if (string.IsNullOrWhiteSpace(pushData.error))
+                    if (pushData == null)
                     {
                         pushData = DataSource.GetSiteMeterData(DataTarget.UserId, CancellationTokenSource);
                     }
