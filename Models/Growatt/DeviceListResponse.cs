@@ -58,7 +58,7 @@ namespace SolarUseOptimiser.Models.Growatt
 
         public string nominalPower { get; set; }
 
-        public string eTotay { get; set; }
+        public string eToday { get; set; }
         public string datalogTypeTest { get; set; }
         public string eTotal { get; set; }
 

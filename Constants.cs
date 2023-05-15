@@ -57,6 +57,7 @@ namespace SolarUseOptimiser
 
             public const string DEV_TYPE_MIX = "mix";
             public const string DEV_TYPE_INV = "inv";
+            public const string DEV_TYPE_TLX = "tlx";
         }
 
         public class IoTaWatt

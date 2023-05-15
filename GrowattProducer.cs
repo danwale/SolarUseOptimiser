@@ -369,7 +369,8 @@ namespace SolarUseOptimiser
                     pushData.error = "Failed to get the Growatt status data from the inverter/battery mix API.";
                 }
             }
-            else if (DeviceType != null && DeviceType.Equals(Constants.Growatt.DEV_TYPE_INV, StringComparison.CurrentCultureIgnoreCase))
+            else if (DeviceType != null && (DeviceType.Equals(Constants.Growatt.DEV_TYPE_INV, StringComparison.CurrentCultureIgnoreCase) ||
+                                            DeviceType.Equals(Constants.Growatt.DEV_TYPE_TLX, StringComparison.CurrentCultureIgnoreCase)))
             {
                 if (deviceDataSuccess)
                 {
@@ -383,7 +384,7 @@ namespace SolarUseOptimiser
             }
             else
             {
-                pushData.error = "An invalid device type was detected, it should be 'inv' or 'mix'.";
+                pushData.error = "An invalid device type was detected, it should be 'inv', 'tlx' or 'mix'.";
             }
 
             return pushData;
