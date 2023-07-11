@@ -7,7 +7,7 @@
 
 The intention of this service is to build upon the Huawei FusionSolar to ChargeHQ integration that I'd previously created and provide a framework for plugging in different data sources and different data targets. This will allow this service to be used for building out integrations of many different solar systems to many different types of consumption optimisation services. It will poll a solar system for how much solar power is being generated (and if possible determine the excess) and then push this onto the configured target (which could be ChargeHQ) to allow that target to regulate the power consumed by the target such as an EV charging or anything else that might be able to use variable power consumption rates. This allows for optimisation of the use of solar energy rather than grid supplied energy.
 
-This service is 100% interchangable with the [danwale/huaweifusionsolar2chargehq](https://hub.docker.com/repository/docker/danwale/huaweifusionsolar2chargehq/general) that provides the functionality hard coded between Huawei FusionSolar and ChargeHQ, this project decouples a few things to make it so it can easily extended to support other solar systems and potentially other targets (_a custom Tesla charge rate control service for instance or any other brand...your imagination is your limiting factor_).
+If you are using a Huawei system this service is 100% interchangable with the [danwale/huaweifusionsolar2chargehq](https://hub.docker.com/repository/docker/danwale/huaweifusionsolar2chargehq/general) that provides the functionality hard coded between Huawei FusionSolar and ChargeHQ, this project decouples a few things to make it so it can easily extended to support other solar systems and potentially other targets (_a custom Tesla charge rate control service for instance or any other brand...your imagination is your limiting factor_).
 
 **Of course if you really like this service and want to thank me a donation would be much appreciated, see the various donation method buttons above or if buying a new Tesla product use my referral code to also get some credits: [https://ts.la/daniel336154](https://ts.la/daniel336154)**
 
@@ -40,7 +40,6 @@ services:
       - HUAWEI__USERNAME= #insert the username Huawei or your installer have provided
       - HUAWEI__PASSWORD= #insert the system code/password Huawei or your installer have issued
       - HUAWEI__STATIONNAME= #insert the plant/station name here
-      - HUAWEI__POLLRATE=5 #in minutes (Huawei have a limit of once every 5 minutes)
       - HUAWEI__USEPOWERSENSORDATA= #true or false value, if a power sensor is present should its data be collected and passed on
       - HUAWEI__USEGRIDMETERDATA= #true or false value, if a grid meter is present should its data be collected and passed on
       - HUAWEI__USEBATTERYDATA= #true or false value, if a battery is present should its data be collected and passed on
@@ -99,7 +98,6 @@ You can configure the entire service using environment variables as shown above,
         "Username":"<Username Here>",
         "Password": "<System Code/Password Here>",
         "StationName": "<Station Name Here>",
-        "PollRate": 5,
         "UsePowerSensorData": true,
         "UseGridMeterData": true,
         "UseBatteryData": true
@@ -123,9 +121,11 @@ If you have power sensor devices or grid meter devices, and/or Huawei batteries 
 
 **How to get a Huawei Username and Password**
 
+**NOTE: Here is a link to the quick guide I created for Solar Installation Company Administrators for setting up the required account, pass this on to them when requesting an API account to be created and it will help them work it out: [https://github.com/danwale/HuaweiFusionSolar-ChargeHQ-Integration/blob/main/docs/Huawei%20FusionSolar%20Northbound%20API%20Account%20Procedures.pdf](https://github.com/danwale/HuaweiFusionSolar-ChargeHQ-Integration/blob/main/docs/Huawei%20FusionSolar%20Northbound%20API%20Account%20Procedures.pdf).**
+
 In late 2022 Huawei changed the process for getting access to the API's, it now requires you to request an API account from the company that installed your Huawei solar system as the installer now has the responsiblity to create what they call a Northbound API Account that would be used. The limitation on the Huawei system is each installer company can only create a maximum of 5 of these Northbound API Accounts as it's intended that they are used by an integration point rather than individual users. To faciliate this shortcoming it's best to ask the installer to create a Northbound API Account for their entire company that will be shared by all users, this software will only pull the information relevant to the specific station/plant that is named in the configuration.
 
-I'll prepare a document detailing how to setup a Northbound API Account for sending onto your installer in case they haven't seen this new functionality before and help guide them through the process. Things they'll need to setup for their account are:
+I've prepared a document (linked above) detailing how to setup a Northbound API Account for sending onto your installer in case they haven't seen this new functionality before and help guide them through the process. Things they'll need to setup for their account are:
 
 - **System Name**: This is a globally unique name for the Northbound API Account being created, I suggest they include their company name initials in the name to help achieve this, e.g. if the company was called _**The Best Solar Firm**_ they'd use the System Name _**TBSF_ChargeHQ_Poller**_. If the name is taken when they try to save/create the new account it will show a dialog informing them that the System Name is already in use.
 - **Username**: Again this is globally unique so they should use a similar technique for naming the username, using the sample company name above they might use _**TBSFChargeHQ**_.
@@ -142,7 +142,7 @@ This is a new implementation of an IDataSource that pulls data from the Growatt 
 
 ### IoTaWatt
 
-This implementation hasn't been tested, it's based on a simple powershell script that Dinesh Pannu created.
+This implementation hasn't been tested, it's based on a simple powershell script that Dinesh Pannu created. [https://github.com/dineshpannu/iotawatt-to-chargehq](https://github.com/dineshpannu/iotawatt-to-chargehq)
 
 ## Data Targets
 
