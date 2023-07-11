@@ -59,6 +59,11 @@ namespace SolarUseOptimiser
             get; set;
         }
 
+        public int DeviceCount
+        {
+            get; set;
+        } = 0;
+
         private static int RetryCount
         {
             get; set;
@@ -92,19 +97,23 @@ namespace SolarUseOptimiser
                 HuaweiSettings = configuration.GetSection(Constants.ConfigSections.HUAWEI_CONFIG_SECTION).Get<HuaweiSettings>();
                 PollRate = HuaweiSettings.PollRate;
 
-                var cookies = new CookieContainer();
-                _handler = new HttpClientHandler();
-                _handler.CookieContainer = cookies;
-                _handler.ClientCertificateOptions = ClientCertificateOption.Manual;
-                _handler.ServerCertificateCustomValidationCallback = (httpRequestMessage, cert, certChain, policyErrors) =>
-                {
-                    return true;
-                };
-                _client = new HttpClient(_handler);
                 var authResposne = await Authenticate(cancellationTokenSource);
                 IsInitialised = authResposne.Success;
             }
             return this;
+        }
+
+        private void CreateHttpClient()
+        {
+            var cookies = new CookieContainer();
+            _handler = new HttpClientHandler();
+            _handler.CookieContainer = cookies;
+            _handler.ClientCertificateOptions = ClientCertificateOption.Manual;
+            _handler.ServerCertificateCustomValidationCallback = (httpRequestMessage, cert, certChain, policyErrors) =>
+            {
+                return true;
+            };
+            _client = new HttpClient(_handler);
         }
 
         public async Task<CommandResponse> Authenticate(CancellationTokenSource cancellationTokenSource)
@@ -137,20 +146,30 @@ namespace SolarUseOptimiser
                                 if (deviceInfoResponse.data != null && deviceInfoResponse.data.Count > 0)
                                 {
                                     bool foundInverter = SetDeviceInfos(deviceInfoResponse.data);
-                                    if (!foundInverter)
+                                    string msg = foundInverter ? "inverter found" : "inverter not found";
+                                    return new CommandResponse
                                     {
-                                        return new CommandResponse
-                                        {
-                                            Success = false,
-                                            Message = "inverter not found"
-                                        };
-                                    }
+                                        Success = foundInverter,
+                                        Message = msg
+                                    };
+                                }
+                                else 
+                                {
+                                    return new CommandResponse
+                                    {
+                                        Success = false,
+                                        Message = "inverter not found"
+                                    };
                                 }
                             }
-                            return new CommandResponse
+                            else
                             {
-                                Success = true
-                            };
+                                return new CommandResponse
+                                {
+                                    Success = false,
+                                    Message = "inverter not found"
+                                };
+                            }
                         }
                         else
                         {
@@ -197,20 +216,30 @@ namespace SolarUseOptimiser
                                 if (deviceInfoResponse.data != null && deviceInfoResponse.data.Count > 0)
                                 {
                                     bool foundInverter = SetDeviceInfos(deviceInfoResponse.data);
-                                    if (!foundInverter)
+                                    string msg = foundInverter ? "inverter found" : "inverter not found";
+                                    return new CommandResponse
                                     {
-                                        return new CommandResponse
-                                        {
-                                            Success = false,
-                                            Message = "inverter not found"
-                                        };
-                                    }
+                                        Success = foundInverter,
+                                        Message = msg
+                                    };
+                                }
+                                else
+                                {
+                                    return new CommandResponse
+                                    {
+                                        Success = false,
+                                        Message = "inverter not found"
+                                    };
                                 }
                             }
-                            return new CommandResponse
+                            else
                             {
-                                Success = true
-                            };
+                                return new CommandResponse
+                                {
+                                    Success = false,
+                                    Message = "inverter not found"
+                                };
+                            }
                         }
                         else
                         {
@@ -303,6 +332,10 @@ namespace SolarUseOptimiser
                 // If the setup has a power sensor use that for the accurate excess solar information
                 PowerSensor = powerSensor;
                 logger.LogDebug("Found a power sensor with ID: {0}", powerSensor.id);
+                if (HuaweiSettings.UsePowerSensorData)
+                {
+                    DeviceCount++;
+                }
             }
             else
             {
@@ -314,6 +347,10 @@ namespace SolarUseOptimiser
             {
                 GridMeter = gridMeter;
                 logger.LogDebug("Found a grid meter with ID: {0}", gridMeter.id);
+                if (HuaweiSettings.UseGridMeterData)
+                {
+                    DeviceCount++;
+                }
             }
             else
             {
@@ -325,6 +362,10 @@ namespace SolarUseOptimiser
             {
                 Battery = battery;
                 logger.LogDebug("Found a residential battery with ID: {0}", battery.id);
+                if (HuaweiSettings.UseBatteryData)
+                {
+                    DeviceCount++;
+                }
             }
             else
             {
@@ -336,6 +377,7 @@ namespace SolarUseOptimiser
             {
                 Inverter = residentialInverter;
                 logger.LogDebug("Found a residential inverter with ID: {0}", residentialInverter.id);
+                DeviceCount++;
             }
             else
             {
@@ -344,6 +386,7 @@ namespace SolarUseOptimiser
                 {
                     Inverter = stringInverter;
                     logger.LogDebug("Found a string inverter with ID: {0}", stringInverter.id);
+                    DeviceCount++;
                 }
                 else
                 {
@@ -369,6 +412,7 @@ namespace SolarUseOptimiser
         {
             if (initialised)
             {
+                CreateHttpClient();
                 LoginCredentialRequest lcr = new LoginCredentialRequest
                 {
                     userName = HuaweiSettings.Username,
@@ -415,7 +459,7 @@ namespace SolarUseOptimiser
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
                     bool success = Utility.WasSuccessMessage<T>(response, out string json, out T responseObj, cancellationToken);
-                    if (success && responseObj.failCode == 305)
+                    if (!success && responseObj.failCode == 305)
                     {
                         success = await GetXsrfToken(cancellationToken);
                         if (success)

@@ -105,7 +105,10 @@ namespace SolarUseOptimiser
                 Timer.Start();
 
                 //Do first poll manually
-                PollGenerationStatistics_Elapsed(this, null);
+                if (DataSource.DeviceCount == 1) 
+                {
+                    PollGenerationStatistics_Elapsed(this, null);
+                }
             }
         }
 

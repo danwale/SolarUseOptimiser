@@ -1,4 +1,5 @@
 .env
+.env.*
 appsettings.prod.json
 .vs/tasks.vs.json
 .vs/slnx.sqlite

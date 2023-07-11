@@ -8,7 +8,7 @@ namespace SolarUseOptimiser.Models.Growatt
 
     public class MixStatusObjResponse
     {
-        public string pdisCharge1 { get; set; } // BatteryDischargePower
+        public double pdisCharge1 { get; set; } // BatteryDischargePower
         public string uwSysWorkMode { get; set; }
         public double pactouser { get; set; } // PowerImportFromGrid
         public string vBat { get; set; }

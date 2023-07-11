@@ -21,6 +21,14 @@ namespace SolarUseOptimiser
 
         public double PollRate {get; set;}
 
+        public int DeviceCount 
+        {
+            get
+            {
+                return 1;
+            }
+        }
+
         public bool IsInitialised {get;set;} = false;
 
         private HttpClient _client;

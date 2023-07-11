@@ -69,6 +69,14 @@ namespace SolarUseOptimiser
             get; set;
         }
 
+        public int DeviceCount
+        {
+            get
+            {
+                return 1;
+            }
+        }
+
         private static CancellationTokenSource CancellationTokenSource;
 
         public GrowattProducer(IConfiguration configuration, ILogger<GrowattProducer> logger)
@@ -344,7 +352,7 @@ namespace SolarUseOptimiser
                 var statusResponse = GetMixStatus(cancellationTokenSource.Token).GetAwaiter().GetResult();
                 if (statusResponse != null && statusResponse.obj != null)
                 {
-                    pushData.siteMeters.production_kw = InverterCurrentProduction;
+                    pushData.siteMeters.production_kw = statusResponse.obj.ppv;
                     pushData.siteMeters.consumption_kw = statusResponse.obj.pLocalLoad;
                     pushData.siteMeters.exported_kwh = TotalPVPower;
                     if (statusResponse.obj.pactouser > 0)
@@ -361,7 +369,15 @@ namespace SolarUseOptimiser
                     if (statusResponse.obj.wBatteryType == "1" && GrowattSettings.UseBatteryData)
                     {
                         pushData.siteMeters.battery_soc = Double.Parse(statusResponse.obj.SOC) / 100;
-                        pushData.siteMeters.battery_discharge_kw = Double.Parse(statusResponse.obj.pdisCharge1);
+                        if (statusResponse.obj.pdisCharge1 == 0)
+                        {
+                            double chargePower = -1 * statusResponse.obj.chargePower;
+                            pushData.siteMeters.battery_discharge_kw = chargePower;
+                        }
+                        else
+                        {
+                            pushData.siteMeters.battery_discharge_kw = statusResponse.obj.pdisCharge1;
+                        }
                     }
                 }
                 else

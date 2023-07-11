@@ -17,6 +17,11 @@ namespace SolarUseOptimiser
             get;
         }
 
+        int DeviceCount
+        {
+            get;
+        }
+
         bool IsInitialised
         {
             get;
